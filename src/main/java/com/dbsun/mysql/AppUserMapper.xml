@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dbsun.mapper.AppUserMapper">
+<sql id="Base_Column_List">
+su.id id,
+su.username username,
+su.password password,
+su.nickname nickname,
+su.sex sex,
+su.signature signature,
+su.phone phone,
+su.is_yc is_yc
+</sql>
+<!--在数据不存在的情况下进行添加-->
+<insert id="addAppUser" parameterType="pd">
+insert into app_user (
+username,
+password,
+nickname,
+sex,
+signature,
+phone,
+is_yc
+ ) values (
+#{username},
+#{password},
+#{nickname},
+#{sex},
+#{signature},
+#{phone},
+#{is_yc}
+) </insert>
+<!--根据id删除数据-->
+<delete id="deleteAppUserId" parameterType="pd"  >
+DELETE FROM  app_user WHERE id = #{id};
+</delete>
+<!--根据id更新数据-->
+<update id="updateAppUser" parameterType="pd"  >
+UPDATE app_user  <set>
+
+<if test="username != null and username !=''"> username = #{username}, </if>
+<if test="password != null and password !=''"> password = #{password}, </if>
+<if test="nickname != null and nickname !=''"> nickname = #{nickname}, </if>
+<if test="sex != null and sex !=''"> sex = #{sex}, </if>
+<if test="signature != null and signature !=''"> signature = #{signature}, </if>
+<if test="phone != null and phone !=''"> phone = #{phone}, </if>
+<if test="is_yc != null and is_yc !=''"> is_yc = #{is_yc}, </if>
+</set>
+ WHERE id = #{id}; </update>
+<!--获取数据 不分页-->
+<select id="queryAppUserKey" parameterType="pd" resultType="pd" useCache="false">
+SELECT <include refid="Base_Column_List"/> FROM app_user su where 1 = 1
+ <if test="id != null and id != '' "> and su.id = #{id}  </if>
+ <if test="username != null and username != '' "> and su.username = #{username}  </if>
+ <if test="password != null and password != '' "> and su.password = #{password}  </if>
+ <if test="nickname != null and nickname != '' "> and su.nickname = #{nickname}  </if>
+ <if test="sex != null and sex != '' "> and su.sex = #{sex}  </if>
+ <if test="signature != null and signature != '' "> and su.signature = #{signature}  </if>
+ <if test="phone != null and phone != '' "> and su.phone = #{phone}  </if>
+ <if test="is_yc != null and is_yc != '' "> and su.is_yc = #{is_yc}  </if>
+</select>
+<!--获取用户列表数据 分页-->
+<select id="queryPageAppUserKeyList" parameterType="page" resultType="pd" useCache="false">
+SELECT <include refid="Base_Column_List"/> FROM app_user su where 1 = 1
+ <if test="pd.id != null and pd.id !=''"> and su.id = #{pd.id}  </if>
+ <if test="pd.username != null and pd.username !=''"> and su.username = #{pd.username}  </if>
+ <if test="pd.password != null and pd.password !=''"> and su.password = #{pd.password}  </if>
+ <if test="pd.nickname != null and pd.nickname !=''"> and su.nickname = #{pd.nickname}  </if>
+ <if test="pd.sex != null and pd.sex !=''"> and su.sex = #{pd.sex}  </if>
+ <if test="pd.signature != null and pd.signature !=''"> and su.signature = #{pd.signature}  </if>
+ <if test="pd.phone != null and pd.phone !=''"> and su.phone = #{pd.phone}  </if>
+ <if test="pd.is_yc != null and pd.is_yc !=''"> and su.is_yc = #{pd.is_yc}  </if>
+</select>
+</mapper>

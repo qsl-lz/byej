@@ -1,0 +1,40 @@
+jdbc:
+    driverClassName: com.mysql.jdbc.Driver
+    password: 123456
+    url: jdbc:mysql://127.0.0.1:3306/bysj?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+    username: root
+mybatis:
+    mapper-beans: com.dbsun.mapper
+    mapper-locations: classpath*:com/dbsun/mysql/**/*Mapper.xml
+    type-aliases-package: com.dbsun.entity
+server:
+    context-path: /app
+    port: 80
+spring:
+    resources:
+        static-locations: classpath:/templates/,classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,file:${img.upload.url}
+    thymeleaf:
+        mode: LEGACYHTML5
+    http:
+        multipart:
+            maxFileSize: 100Mb
+            maxRequestSize: 100Mb
+config:
+    url:
+        static_files_access_url: /app/
+        website_host: http://127.0.0.1
+
+
+## thymeleaf模板设置
+thymeleaf:
+    prefix: classpath:/templates
+    suffix: .html
+    mode: HTML
+    encoding: utf-8
+    servlet.content-type: text/html
+    cache: false
+
+## 文件上传配置
+img:
+    upload:
+        url: C:/upload/

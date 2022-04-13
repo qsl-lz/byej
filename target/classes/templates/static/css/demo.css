@@ -1,0 +1,31 @@
+
+html, body {
+    y-overflow: auto;
+}
+
+.cusMTable {
+    margin-top: 10px;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.el-table td {
+    padding: 4px 0 !important;
+}
+
+.el-message-box {
+    margin-top: -300px;
+}
+
+.top_divR {
+    width: 150px;
+    margin-right: 20px;
+}

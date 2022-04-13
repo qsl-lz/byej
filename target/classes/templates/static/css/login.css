@@ -1,0 +1,60 @@
+
+html,body{
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: #eee;
+    background: url("../img/loginBGI.jpg") no-repeat center center;
+    background-size:cover;
+}
+.conTop{
+}
+.conDivcon{
+    padding-top: 25vh;
+}
+.conDiv{
+    width: 400px;
+    margin: auto;
+    text-align: center;
+    background: rgba(255,255,255,.5);
+    border-radius: 4px;
+    padding: 30px 20px;
+}
+.form-group{
+    margin: 10px auto;
+}
+.form-group input{
+    width: 200px;
+    height: 30px;
+    padding-left: 5px;
+}
+.conDiv button{
+    width: 207px;
+    height: 35px;
+    background-color: #00a03e;
+    border: 1px solid #00a03e;
+    border-radius: 4px;
+    text-align: center;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+}
+.register{
+    padding-top: 50px;
+    width: 450px;
+    margin: auto;
+    text-align: right;
+    margin-top: 10px;
+    cursor: pointer;
+    color: #ffffff;
+}
+#code {
+    width: 60px;
+    color: #ffffff;
+    background-color: #00a03e;
+    font-size: 20pt;
+    font-family: "华康娃娃体W5";
+    padding: 0px 30px 2px 30px;
+    cursor: pointer;
+
+}

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+    <title>体温管理</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://unpkg.zhimg.com/element-ui/lib/theme-chalk/index.css">
+    <script type="text/javascript">
+        var html = document.getElementsByTagName("html")[0];
+        var w = document.documentElement.clientWidth || document.body.clientWidth;
+        html.style.fontSize = w / 1366 + "px";
+    </script>
+<!--    <script src="https://unpkg.zhimg.com/vue/dist/vue.js"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://unpkg.zhimg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+    <style>
+        body {
+            y-overflow: auto;
+        }
+
+        .cusMTable {
+            margin-top: 10px;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .el-table td {
+            padding: 4px 0 !important;
+        }
+
+        .el-message-box {
+            margin-top: -300px;
+        }
+
+        .top_divR {
+            width: 150px;
+            margin-right: 20px;
+        }
+    </style>
+</head>
+<body style="background-color:#f1f7fe;">
+<div id="cus_IndexApp" v-cloak>
+    <div class="cusMTable">
+        <el-table :data="cusTableLstInit" style="width: 100%">
+            <el-table-column
+                    prop="id"
+                    label="序号">
+            </el-table-column>
+            <el-table-column
+                    prop="user_name"
+                    label="用户">
+            </el-table-column>
+            <el-table-column
+                    prop="tw_name"
+                    label="体温℃">
+            </el-table-column>
+            <el-table-column
+                    prop="tw_time"
+                    label="体温测量时间">
+            </el-table-column>
+            <el-table-column
+                    prop="tw_note"
+                    label="体温异常备注">
+            </el-table-column>
+            <el-table-column fixed="right" label="操作" width="100">
+                <template slot-scope="scope">
+                    <el-button @click="edit(scope.row)" type="text" size="small">编辑</el-button>
+                    <el-button type="text" size="small" @click="del(scope.row)" style="color: #F56C6C;"
+                               v-if="userObj.role_id==3">删除
+                    </el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+        <div style="text-align:right;">
+            <el-pagination @current-change="handleCurrentChange" :current-page="pageInit.currentPage" :page-size="10"
+                           layout="total, prev, pager, next, jumper" :total="pageInit.totalResult">
+            </el-pagination>
+        </div>
+    </div>
+    <el-dialog :title="titleName" :visible.sync="addNewCustomer" width="60%" top="5vh">
+        <el-form :model="ruleForm" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+            <el-form-item label="体温">
+                <el-input v-model="ruleForm.tw_name"></el-input>
+            </el-form-item>
+            <el-form-item label="体温备注">
+                <el-input v-model="ruleForm.tw_note" type="textarea"></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" style="margin-left:35%" @click="submitForm">立即保存</el-button>
+            </el-form-item>
+        </el-form>
+    </el-dialog>
+</div>
+</body>
+<script th:inline="javascript">
+    var basePath = "/" + window.location.pathname.split("/")[1];
+    let app = window.parent.App;
+    new Vue({
+        el: "#cus_IndexApp",
+        data() {
+            return {
+                pageInit: {
+                    currentPage: 1,
+                },
+                cusTableLstInit: [],
+                soMoreUserIpt: {},
+                addNewCustomer: false,
+                ruleForm: {},
+                titleName: "新增",
+                classOptions: [],
+                userObj: [],
+            }
+        },
+        mounted() {
+            this.userObj = JSON.parse(localStorage.getItem("userInfo"));
+            ;
+            this.handleCurrentChange(1);
+        },
+        methods: {
+            returnSysUser(id) {
+                if (id) {
+                    let name = "";
+                    $.ajax({
+                        type: "GET",
+                        url: `${basePath}/app_ti_wen/queryPageAppTiWenKeyList`,
+                        data: {id},
+                        async: false,
+                        success: function (data) {
+                            if (data.data) {
+                                name = data.data;
+                            } else {
+                                name = "数据异常";
+                            }
+                        }
+                    })
+                    return name
+                }
+                return "暂无"
+            },
+            returnClass(id) {
+                if (id) {
+                    let name = "";
+                    $.ajax({
+                        type: "GET",
+                        url: `${basePath}/app_ti_wen/queryPageAppTiWenKeyList`,
+                        data: {id},
+                        async: false,
+                        success: function (data) {
+                            if (data.data) {
+                                name = data.data;
+                            } else {
+                                name = "数据异常"
+                            }
+                        }
+                    })
+                    return name
+                }
+                return "暂无"
+            },
+            add() {
+                this.titleName = "新增";
+                this.ruleForm = {};
+                this.getClassOptions();
+                this.addNewCustomer = true;
+            },
+            edit(row) {
+                this.titleName = "编辑";
+                row.s_class = Number(row.s_class);
+                this.ruleForm = row;
+                this.getClassOptions();
+                this.addNewCustomer = true;
+            },
+            getClassOptions() {
+                let that = this;
+                $.ajax({
+                    type: "GET",
+                    url: `${basePath}/app_ti_wen/queryPageAppTiWenKeyList`,
+                    data: {},
+                    success: function (data) {
+                        that.classOptions = data.data;
+                    }
+                })
+            },
+            submitForm() {
+                let that = this;
+                if (this.titleName == "新增") {
+                    this.ruleForm.add_id = this.userObj.id;
+                    $.ajax({
+                        type: "GET",
+                        url: basePath + "/app_ti_wen/addAppTiWenNo",
+                        data: that.ruleForm,
+                        success: function (res) {
+                            console.log(res);
+                            if (res.status == 0) {
+                                that.addNewCustomer = false;
+                                that.handleCurrentChange(1);
+                            }
+                        }
+                    })
+                } else {
+                    $.ajax({
+                        type: "GET",
+                        url: basePath + "/app_ti_wen/updateAppTiWen",
+                        data: that.ruleForm,
+                        success: function (res) {
+                            if (res.status == 0) {
+                                that.addNewCustomer = false;
+                                that.handleCurrentChange(1);
+                            }
+                        }
+                    })
+                }
+            },
+            changeSearchFlag() {
+                this.topSearchFlag = false;
+            },
+            handleCurrentChange(val) {
+                this.loading = true;
+                this.soMoreUserIpt.currentPage = val;
+                let that = this;
+                $.ajax({
+                    type: "GET",
+                    url: `${basePath}/app_ti_wen/queryPageAppTiWenKeyList`,
+                    data: that.soMoreUserIpt,
+                    success: function (data) {
+                        that.cusTableLstInit = data.rows;
+                        that.pageInit.totalResult = data.total;
+                        that.pageInit.currentPage = val;
+                        that.loading = false;
+                    }
+                })
+            },
+            del(row) {
+                var that = this;
+                that.$confirm("确认删除该信息!", "提示", {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: "warning"
+                }).then(() => {
+                    $.ajax({
+                        type: "GET",
+                        url: `${basePath}/app_ti_wen/deleteAppTiWen`,
+                        data: {id: row.id},
+                        success: function (data) {
+                            if (data.status == 0) {
+                                that.$message({
+                                    type: "success",
+                                    message: "删除成功"
+                                });
+                                that.handleCurrentChange(1);
+                            }
+                        }
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: "info",
+                        message: "已取消删除"
+                    });
+                });
+            },
+        }
+    })
+</script>
+</html>

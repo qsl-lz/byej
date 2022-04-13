@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maixmum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+    <title>个人中心-景区数据可视化系统</title>
+    <link rel="stylesheet" href="https://unpkg.zhimg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="static/css/index.css">
+    <link rel="stylesheet" href="static/css/center.css">
+    <script src="https://unpkg.zhimg.com/vue@2.6.12/dist/vue.js"></script>
+    <script src="https://unpkg.zhimg.com/element-ui/lib/index.js"></script>
+    <script src="static/js/jquery-2.2.3.min.js"></script>
+
+</head>
+<body>
+<div id="indexApp">
+    <header>
+        <div class="header">
+            <img src="static/img/icon_logo.png" @click="toIndex"/>
+            <div class="topItemList">
+                <span @click="curSelect(1)" :class="activeIndex=='首页' ? 'selCur' : ''">首页</span>
+                <span :class="activeIndex=='紧急通知' ? 'selCur' : ''" @click="curSelect(2)">紧急通知</span>
+
+            </div>
+            <div class="my_img">
+                <el-dropdown>
+                  <span class="el-dropdown-link">
+                        <img v-if="userObj.sex==1" src="static/img/saler.png"/>
+                        <img v-else="userObj.sex==2" src="static/img/saler1.png"/>
+                      <i class="el-icon-arrow-down el-icon--right"></i>
+                  </span>
+                    <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item disabled><span @click="toCenter">个人中心</span></el-dropdown-item>
+                        <el-dropdown-item><span @click="loginOut">退出登录</span></el-dropdown-item>
+                    </el-dropdown-menu>
+                </el-dropdown>
+            </div>
+        </div>
+    </header>
+    <div style="background: #f4f4f4;">
+        <div class="myCon">
+            <div class="myCon_left">
+                <div class="myCon_left_top">
+                    <div>
+                        <img v-if="userObj.sex==1" src="static/img/saler.png"/>
+                        <img v-else="userObj.sex==2" src="static/img/saler1.png"/>
+                    </div>
+                    <div class="myCon_left_top_my">
+                        <span>{{userObj.nickname}}</span>
+                        <img v-if="userObj.sex==1" src="static/img/icon_man.png"/>
+                        <img v-else-if="userObj.sex==2" src="static/img/icon_woman.png"/>
+                    </div>
+                </div>
+
+                <div class="myCon_left_con">
+                    <div @click="toSet">个人信息</div>
+                    <div @click="myTravel">我的行程</div>
+                    <div @click="myTiwen">上报体温</div>
+                </div>
+            </div>
+            <div class="myCon_right">
+                <div v-if="selIndex==1" >
+                    <h4>我的信息</h4>
+                    <div>
+                        <el-form :model="ruleForm" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+                        <el-form-item label="密码">
+                        <el-input v-model="ruleForm.password" type="password"></el-input>
+                        </el-form-item>
+                        <el-form-item label="姓名">
+                        <el-input v-model="ruleForm.nickname"></el-input>
+                        </el-form-item>
+                            <el-form-item label="手机号">
+                                <el-input v-model="ruleForm.phone"></el-input>
+                            </el-form-item>
+                        <el-form-item label="性别">
+                         <el-select v-model="ruleForm.sex" placeholder="请选择">
+                          <el-option label="男" value="1"></el-option>
+                          <el-option label="女" value="2"></el-option>
+                         </el-select>
+                        </el-form-item>
+                        <el-form-item label="个性签名">
+                        <el-input v-model="ruleForm.signature"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                        <el-button type="primary" style="margin-left:35%" @click="submitForm">立即保存</el-button>
+                        </el-form-item>
+                        </el-form>
+                    </div>
+                </div>
+                <div v-else-if="selIndex==2">
+                    <el-tabs v-model="activeName" @tab-click="handleClick">
+                        <el-tab-pane label="我的行程" name="first">
+                            <div style="text-align: center;">
+                                <el-button type="success" @click="addTravel">上报行程</el-button>
+                            </div>
+                            <div class="selCon" v-for="(item,index) in travelList">
+                                <div>{{item.xing_cheng_time}}</div>
+                                <div>{{item.xc_name}}</div>
+                            </div>
+                        </el-tab-pane>
+                    </el-tabs>
+                </div>
+                <div v-else-if="selIndex==4">
+                    <el-tabs v-model="activeName" @tab-click="handleClick">
+                        <el-tab-pane label="上报体温" name="first">
+                            <div style="text-align: center;">
+                                <el-button type="success" @click="addTiwen">上报体温</el-button>
+                            </div>
+                            <div class="selCon" v-for="(item,index) in tiwenList">
+                                <div>{{item.tw_time}}【{{item.tw_name}}℃】</div>
+                                <div v-if="item.tw_note">备注：{{item.tw_note}}</div>
+                            </div>
+                        </el-tab-pane>
+                    </el-tabs>
+                </div>
+
+            </div>
+        </div>
+        <div></div>
+        <div style="height: 50px;"></div>
+    
+    </div>
+    <footer>
+        <div>景区数据可视化系统</div>
+        <div>Copyright &copy; 2022</div>
+    </footer>
+
+    <el-dialog title="上报行程" :visible.sync="travelFlag" width="40%" top="5vh">
+        <el-form :model="travelForm" ref="travelForm" label-width="100px" class="demo-ruleForm">
+            <el-form-item label="行程日期">
+                <el-date-picker
+                        v-model="travelForm.xing_cheng_time"
+                        type="date"
+                        placeholder="选择日期"
+                        format="yyyy 年 MM 月 dd 日"
+                        value-format="yyyy-MM-dd">
+                </el-date-picker>
+            </el-form-item>
+            <el-form-item label="行程地点">
+                <el-input v-model="travelForm.xc_name"></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" style="margin-left:35%" @click="submitTravelForm">确认上报</el-button>
+            </el-form-item>
+        </el-form>
+    </el-dialog>
+
+    <el-dialog title="上报体温" :visible.sync="tiwenFlag" width="40%" top="5vh">
+        <el-form :model="tiwenForm" ref="tiwenForm" label-width="100px" class="demo-ruleForm">
+            <el-form-item label="测量温度">
+                <el-input v-model="tiwenForm.tw_name"><template slot="append">℃</template></el-input>
+            </el-form-item>
+            <el-form-item label="体温备注">
+                <el-input v-model="tiwenForm.tw_note"></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" style="margin-left:35%" @click="submitTiwenForm">确认上报</el-button>
+            </el-form-item>
+        </el-form>
+    </el-dialog>
+
+</div>
+</body>
+<!-- 全局js -->
+<script>
+
+    
+var basePath = "/" + window.location.pathname.split("/")[1];
+var indexApp = new Vue({
+    el: "#indexApp",
+    data() {
+        return {
+            activeIndex:'',
+            selIndex:1,
+            itemList:[],
+            uploadUrl:basePath,
+            ruleForm:{},
+            userObj:[],
+            activeName:'first',
+            activeType:'first',
+            travelList:[],
+            twList:[],
+            payTicketList:[],
+            travelFlag:false,
+            travelForm:{},
+            tiwenList:[],
+            tiwenFlag:false,
+            tiwenForm:{},
+            
+        }
+    },
+    created() {
+        this.userObj=JSON.parse(localStorage.getItem("webInfo")) || [];
+        this.ruleForm = JSON.parse(localStorage.getItem("webInfo")) || [];
+        if(this.userObj.id){
+        }else{
+            window.location.href=basePath+"/index";
+        }
+    },
+    mounted() {
+        this.getUserData();
+    },
+    methods: {
+        addTravel(){
+            this.travelForm={u_id:this.userObj.id};
+            this.travelFlag=true;
+        },
+        curSelect(val){
+            this.activeIndex=val;
+            if(val==1){
+                window.location.href=basePath+"/index";
+            }else if(val==2){
+                window.location.href=basePath+"/news";
+            }else if(val==3){
+                window.location.href=basePath+"/comment";
+            }
+        },
+        submitTravelForm(){
+            let that = this;
+            $.ajax({
+                type: "GET",
+                url: `${basePath}/app_xing_cheng/addAppXingChengAll`,
+                data: that.travelForm,
+                async: false,
+                success: function (data) {
+                    if(data.status==0){
+                        that.$message.success('上报行程成功！');
+                        that.getClot();
+                        that.travelFlag =false;
+                    }
+                }
+            })
+        },
+        addTiwen(){
+            this.tiwenForm={u_id:this.userObj.id};
+            this.tiwenFlag=true;
+        },
+        submitTiwenForm(){
+            let that = this;
+            $.ajax({
+                type: "GET",
+                url: `${basePath}/app_ti_wen/addAppTiWenAll`,
+                data: that.tiwenForm,
+                async: false,
+                success: function (data) {
+                    if(data.status==0){
+                        that.$message.success('上报体温成功！');
+                        that.getTiwen();
+                        that.tiwenFlag =false;
+                    }
+                }
+            })
+        },
+        getTiwen(){
+            let that = this;
+            $.ajax({
+                type: "GET",
+                url: `${basePath}/app_ti_wen/queryAppTiWenKey`,
+                data: {u_id:that.userObj.id},
+                success: function (data) {
+                    that.tiwenList = data.data;
+                }
+            })
+        },
+        getUserData(){
+            let that = this;
+
+            $.ajax({
+                type: "GET",
+                url: `${basePath}/app_user/queryAppUserKey`,
+                data: {id: that.userObj.id},
+                async: false,
+                success: function (data) {
+                    that.userObj = data.data[0];
+                }
+            })
+        },
+        toCenter(){
+            window.location.href=basePath+"/center";
+        },
+        loginOut(){
+            window.location.href=basePath+"/login";
+            localStorage.removeItem("webInfo")
+        },
+        toIndex(){
+            window.location.href=basePath+"/index";
+        },
+        cancelOrder(item){
+            var that=this;
+            that.$confirm("确认退订该订单!", "提示", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning"
+            }).then(() => {
+                $.ajax({
+                    type:"GET",
+                    url:`${basePath}/app_order/updateAppOrder`,
+                    data:{id:item.id,order_type:2},
+                    success:function(data){
+                        if(data.status==0){
+                            that.$message({
+                                type: "success",
+                                message: "退订订单成功"
+                            });
+                            that.getPay();
+                        } } })
+            }).catch(() => {
+                this.$message({
+                    type: "info",
+                    message: "已取消操作"
+                });
+            });
+        },
+        submitForm(){
+            let that = this;
+            $.ajax({
+                type: "GET",
+                url: `${basePath}/app_user/updateAppUser`,
+                data: that.ruleForm,
+                success: function (data) {
+                    if(data.status==0){
+                        var obj = JSON.stringify(that.ruleForm);
+                        localStorage.setItem('webInfo', obj);
+                        this.userObj = that.ruleForm;
+                        location.reload();
+                        that.$message({
+                            type: "success",
+                            message: "个人信息修改成功！"
+                        });
+                    }
+                }
+            })
+        },
+        handleClick(tab){
+            this.activeName = tab.name;
+            this.getClot();
+        },
+        handleTypeClick(tab){
+            this.activeType = tab.name;
+            this.getPay();
+        },
+        toSet(){
+            this.selIndex=1;  
+        },
+        myTravel(){
+            this.selIndex=2;
+
+            this.getClot();
+        },
+        myTiwen(){
+            this.selIndex=4;
+            this.getTiwen();
+        },
+        myPay(){
+            this.selIndex=3;
+            this.getPay();
+        },
+        getClot(){
+            let that = this;
+            $.ajax({
+                type: "GET",
+                url: `${basePath}/app_xing_cheng/queryAppXingChengKey`,
+                data: {u_id:that.userObj.id},
+                success: function (data) {
+                    that.travelList = data.data;
+                }
+            })
+        },
+        getPay(){
+            let that = this;
+            $.ajax({
+                type: "GET",
+                url: `${basePath}/app_order/queryAppOrderKey`,
+                data: {u_id:that.userObj.id},
+                success: function (data) {
+                    that.payTicketList = data.data;
+                }
+            })
+        },
+        
+    }
+})
+</script>
+</html>

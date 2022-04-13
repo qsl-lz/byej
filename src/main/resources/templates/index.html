@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1.0,maixmum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+    <title>主页-景区数据可视化系统</title>
+    <link rel="stylesheet" href="https://unpkg.zhimg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="static/css/index.css">
+    <script src="https://unpkg.zhimg.com/vue@2.6.12/dist/vue.js"></script>
+    <script src="https://unpkg.zhimg.com/element-ui/lib/index.js"></script>
+    <script src="static/js/jquery-2.2.3.min.js"></script>
+    <script src="static/js/echarts.min.js"></script>
+    <script src="static/js/china.js"></script>
+
+
+</head>
+<body>
+<div id="indexApp">
+    <header>
+        <div class="header">
+            <img src="static/img/icon_logo.png" @click="toIndex"/>
+            <div class="topItemList">
+                <span @click="curSelect(1)" :class="activeIndex=='首页' ? 'selCur' : ''">首页</span>
+                <span :class="activeIndex=='紧急通知' ? 'selCur' : ''" @click="curSelect(2)">紧急通知</span>
+            </div>
+            <div v-if="userObj.id">
+                <div class="my_img">
+                    <el-dropdown>
+                  <span class="el-dropdown-link">
+
+                        <img v-if="userObj.sex==1" src="static/img/saler.png"/>
+                        <img v-else="userObj.sex==2" src="static/img/saler1.png"/><i
+                          class="el-icon-arrow-down el-icon--right"></i>
+                  </span>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item><span @click="toCenter">个人中心</span></el-dropdown-item>
+                            <el-dropdown-item><span @click="loginOut">退出登录</span></el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                </div>
+            </div>
+            <div v-else>
+                <span @click="loginOut">登录</span>
+                <label>|</label>
+                <span @click="loginOut">注册</span>
+            </div>
+        </div>
+    </header>
+    <div class="contaiter">
+        <h3>景区游客数据</h3>
+        <div class="conTopMap">
+            <div class="conTopMap_left">
+                <el-table :data="cusTableLstInit" style="width: 100%">
+                    <el-table-column
+                            prop="name"
+                            label="区域名称">
+                    </el-table-column>
+                    <el-table-column
+                            prop="a_status"
+                            label="状态">
+                        <template slot-scope="scope">
+                            <div v-if="scope.row.a_status==1">正常</div>
+                            <div v-else-if="scope.row.a_status==2">正常</div>
+                            <div v-else-if="scope.row.a_status==3">封闭</div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column
+                            prop="a_num"
+                            label="游客">
+                        <template slot-scope="scope">
+                            <el-tag type="success">{{scope.row.a_num}}</el-tag>
+                        </template>
+                    </el-table-column>
+                    <el-table-column
+                            prop="yc_num"
+                            label="异常">
+                        <template slot-scope="scope">
+                            <el-tag type="danger">{{scope.row.yc_num}}</el-tag>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <h4>异常用户</h4>
+                <div class="ycUsrCon">
+                    <span v-for="(item,index) in userList">{{item.nickname}}、</span>
+                </div>
+            </div>
+            <div class="conTopMap_right">
+                <div id="dataMap" style="width: 750px;height: 550px;"></div>
+            </div>
+        </div>
+    </div>
+    <div style="height: 50px;"></div>
+    <footer>
+        <div>景区数据可视化系统</div>
+        <div>Copyright &copy; 2022</div>
+    </footer>
+
+</div>
+</body>
+<!-- 全局js -->
+<script>
+
+    var basePath = "/" + window.location.pathname.split("/")[1];
+    var indexApp = new Vue({
+        el: "#indexApp",
+        data() {
+            return {
+                activeIndex: '首页',
+                userObj: {},
+                cusTableLstInit: [],
+                userList: []
+            }
+        },
+        created() {
+            this.userObj = JSON.parse(localStorage.getItem("webInfo")) || [];
+        },
+        mounted() {
+            this.getYcList();
+            this.getYcUser();
+            this.getMapData();
+        },
+        methods: {
+            toJdDetails(id) {
+                window.location.href = basePath + "/jd_details?id=" + id;
+            },
+            toCenter() {
+                window.location.href = basePath + "/center";
+            },
+            toIndex() {
+                location.reload();
+            },
+            curSelect(val, name) {
+                this.activeIndex = val;
+                if (val == 1) {
+                    window.location.href = basePath + "/index";
+                } else if (val == 2) {
+                    window.location.href = basePath + "/news";
+                } else if (val == 3) {
+                    window.location.href = basePath + "/comment";
+                }
+            },
+            loginOut() {
+                window.location.href = basePath + "/login";
+                localStorage.removeItem("webInfo")
+            },
+            getYcList() {
+                let that = this;
+                $.ajax({
+                    type: "GET",
+                    url: `${basePath}/region_manage/queryRegionManageKey`,
+                    data: {},
+                    success: function (data) {
+                        that.cusTableLstInit = data.data;
+                    }
+                })
+            },
+            getYcUser() {
+                let that = this;
+                $.ajax({
+                    type: "GET",
+                    url: `${basePath}/app_user/queryAppUserKey`,
+                    data: {is_yc: 2},
+                    success: function (data) {
+                        that.userList = data.data;
+                    }
+                })
+            },
+            getMapData() {
+                let that = this;
+                $.ajax({
+                    type: "GET",
+                    url: `${basePath}/province_num_manage/queryProvinceNumManageKey`,
+                    data: {},
+                    success: function (data) {
+                        that.setMapData(data.data);
+                    }
+                })
+            },
+            setMapData(mydata) {
+                var optionMap = {
+                    backgroundColor: '#FFFFFF',
+                    title: {
+                        text: '游客来源统计',
+                        subtext: '',
+                        x: 'center'
+                    },
+                    tooltip: {
+                        trigger: 'item'
+                    },
+
+
+                    //左侧小导航图标
+                    visualMap: {
+                        show: true,
+                        x: 'left',
+                        y: 'center',
+                        splitList: [
+                            {start: 500, end: 600}, {start: 400, end: 500},
+                            {start: 300, end: 400}, {start: 200, end: 300},
+                            {start: 100, end: 200}, {start: 0, end: 100},
+                        ],
+                        color: ['#5475f5', '#9feaa5', '#85daef', '#74e2ca', '#e6ac53', '#9fb5ea']
+                    },
+
+                    //配置属性
+                    series: [{
+                        name: '游客数量',
+                        type: 'map',
+                        mapType: 'china',
+                        roam: true,
+                        left: "20%",
+                        label: {
+                            normal: {
+                                show: true  //省份名称
+                            },
+                            emphasis: {
+                                show: false
+                            }
+                        },
+                        data: mydata  //数据
+                    }]
+                };
+                console.log(mydata);
+                //初始化echarts实例
+                var myChart = echarts.init(document.getElementById('dataMap'));
+                console.log(myChart);
+
+                //使用制定的配置项和数据显示图表
+                myChart.setOption(optionMap);
+            }
+
+        }
+    })
+</script>
+</html>

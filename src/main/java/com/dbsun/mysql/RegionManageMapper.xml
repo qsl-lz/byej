@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dbsun.mapper.RegionManageMapper">
+<sql id="Base_Column_List">
+su.id id,
+su.name name,
+su.a_status a_status,
+su.a_num a_num,
+su.yc_num yc_num
+</sql>
+<!--在数据不存在的情况下进行添加-->
+<insert id="addRegionManage" parameterType="pd">
+insert into region_manage (
+name,
+a_status,
+a_num,
+yc_num
+ ) values (
+#{name},
+#{a_status},
+#{a_num},
+#{yc_num}
+) </insert>
+<!--根据id删除数据-->
+<delete id="deleteRegionManageId" parameterType="pd"  >
+DELETE FROM  region_manage WHERE id = #{id};
+</delete>
+<!--根据id更新数据-->
+<update id="updateRegionManage" parameterType="pd"  >
+UPDATE region_manage  <set>
+
+<if test="name != null and name !=''"> name = #{name}, </if>
+<if test="a_status != null and a_status !=''"> a_status = #{a_status}, </if>
+<if test="a_num != null and a_num !=''"> a_num = #{a_num}, </if>
+<if test="yc_num != null and yc_num !=''"> yc_num = #{yc_num}, </if>
+</set>
+ WHERE id = #{id}; </update>
+<!--获取数据 不分页-->
+<select id="queryRegionManageKey" parameterType="pd" resultType="pd" useCache="false">
+SELECT <include refid="Base_Column_List"/> FROM region_manage su where 1 = 1
+ <if test="id != null and id != '' "> and su.id = #{id}  </if>
+ <if test="name != null and name != '' "> and su.name like '%${name}%'  </if>
+ <if test="a_status != null and a_status != '' "> and su.a_status = #{a_status}  </if>
+ <if test="a_num != null and a_num != '' "> and su.a_num = #{a_num}  </if>
+ <if test="yc_num != null and yc_num != '' "> and su.yc_num = #{yc_num}  </if>
+</select>
+<!--获取用户列表数据 分页-->
+<select id="queryPageRegionManageKeyList" parameterType="page" resultType="pd" useCache="false">
+SELECT <include refid="Base_Column_List"/> FROM region_manage su where 1 = 1
+ <if test="pd.id != null and pd.id !=''"> and su.id = #{pd.id}  </if>
+ <if test="pd.name != null and pd.name !=''"> and su.name like '%${pd.name}%'  </if>
+ <if test="pd.a_status != null and pd.a_status !=''"> and su.a_status = #{pd.a_status}  </if>
+ <if test="pd.a_num != null and pd.a_num !=''"> and su.a_num = #{pd.a_num}  </if>
+ <if test="pd.yc_num != null and pd.yc_num !=''"> and su.yc_num = #{pd.yc_num}  </if>
+</select>
+</mapper>

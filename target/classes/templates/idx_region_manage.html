@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+    <title>景区区域管理</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://unpkg.zhimg.com/element-ui/lib/theme-chalk/index.css">
+    <script type="text/javascript">
+        var html = document.getElementsByTagName("html")[0];
+        var w = document.documentElement.clientWidth || document.body.clientWidth;
+        html.style.fontSize = w / 1366 + "px";
+    </script>
+<!--    <script src="https://unpkg.zhimg.com/vue/dist/vue.js"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://unpkg.zhimg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+    <style>
+        body {
+            y-overflow: auto;
+        }
+
+        .cusMTable {
+            margin-top: 10px;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .el-table td {
+            padding: 4px 0 !important;
+        }
+
+        .el-message-box {
+            margin-top: -300px;
+        }
+
+        .top_divR {
+            width: 150px;
+            margin-right: 20px;
+        }
+    </style>
+</head>
+<body style="background-color:#f1f7fe;">
+<div id="cus_IndexApp" v-cloak>
+    <div>
+        <el-button type="success" icon="fa fa-user-plus" size="mini" @click="add">&nbsp;新增</el-button>
+        <el-input placeholder="请输入区域名称" v-model="soMoreUserIpt.name" size="mini" class="top_divR" clearable></el-input>
+        <el-button size="mini" type="warning" style="background-color:#fd8c12;" @click="handleCurrentChange(1)">查询
+        </el-button>
+    </div>
+    <div class="cusMTable">
+        <el-table :data="cusTableLstInit" style="width: 100%">
+            <el-table-column
+                    prop="id"
+                    label="编号">
+            </el-table-column>
+            <el-table-column
+                    prop="name"
+                    label="区域名称">
+            </el-table-column>
+            <el-table-column
+                    prop="a_status"
+                    label="状态">
+                <template slot-scope="scope">
+                    <div v-if="scope.row.a_status==1">正常</div>
+                    <div v-else-if="scope.row.a_status==2">正常</div>
+                    <div v-else-if="scope.row.a_status==3">封闭</div>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    prop="a_num"
+                    label="游客数量">
+            </el-table-column>
+            <el-table-column
+                    prop="yc_num"
+                    label="异常游客数量">
+            </el-table-column>
+            <el-table-column fixed="right" label="操作" width="100">
+                <template slot-scope="scope">
+                    <el-button @click="edit(scope.row)" type="text" size="small">编辑</el-button>
+                    <el-button type="text" size="small" @click="del(scope.row)" style="color: #F56C6C;"
+                               v-if="userObj.role_id==3">删除
+                    </el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+        <div style="text-align:right;">
+            <el-pagination @current-change="handleCurrentChange" :current-page="pageInit.currentPage" :page-size="10"
+                           layout="total, prev, pager, next, jumper" :total="pageInit.totalResult">
+            </el-pagination>
+        </div>
+    </div>
+    <el-dialog :title="titleName" :visible.sync="addNewCustomer" width="60%" top="5vh">
+        <el-form :model="ruleForm" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+            <el-form-item label="区域名称">
+                <el-input v-model="ruleForm.name"></el-input>
+            </el-form-item>
+            <el-form-item label="状态">
+                <el-select v-model="ruleForm.a_status" placeholder="请选择">
+                    <el-option label="正常" :value="1"></el-option>
+                    <el-option label="维修" :value="2"></el-option>
+                    <el-option label="封闭" :value="3"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="游客数量">
+                <el-input v-model="ruleForm.a_num"></el-input>
+            </el-form-item>
+            <el-form-item label="异常游客数量">
+                <el-input v-model="ruleForm.yc_num"></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" style="margin-left:35%" @click="submitForm">立即保存</el-button>
+            </el-form-item>
+        </el-form>
+    </el-dialog>
+</div>
+</body>
+<script th:inline="javascript">
+    var basePath = "/" + window.location.pathname.split("/")[1];
+    let app = window.parent.App;
+    new Vue({
+        el: "#cus_IndexApp",
+        data() {
+            return {
+                pageInit: {
+                    currentPage: 1,
+                },
+                cusTableLstInit: [],
+                soMoreUserIpt: {},
+                addNewCustomer: false,
+                ruleForm: {},
+                titleName: "新增",
+                classOptions: [],
+                userObj: [],
+            }
+        },
+        mounted() {
+            this.userObj = JSON.parse(localStorage.getItem("userInfo"));
+            ;
+            this.handleCurrentChange(1);
+        },
+        methods: {
+            returnSysUser(id) {
+                if (id) {
+                    let name = "";
+                    $.ajax({
+                        type: "GET",
+                        url: `${basePath}/region_manage/queryPageRegionManageKeyList`,
+                        data: {id},
+                        async: false,
+                        success: function (data) {
+                            if (data.data) {
+                                name = data.data;
+                            } else {
+                                name = "数据异常";
+                            }
+                        }
+                    })
+                    return name
+                }
+                return "暂无"
+            },
+            returnClass(id) {
+                if (id) {
+                    let name = "";
+                    $.ajax({
+                        type: "GET",
+                        url: `${basePath}/region_manage/queryPageRegionManageKeyList`,
+                        data: {id},
+                        async: false,
+                        success: function (data) {
+                            if (data.data) {
+                                name = data.data;
+                            } else {
+                                name = "数据异常"
+                            }
+                        }
+                    })
+                    return name
+                }
+                return "暂无"
+            },
+            add() {
+                this.titleName = "新增";
+                this.ruleForm = {};
+                this.getClassOptions();
+                this.addNewCustomer = true;
+            },
+            edit(row) {
+                this.titleName = "编辑";
+                row.s_class = Number(row.s_class);
+                this.ruleForm = row;
+                this.getClassOptions();
+                this.addNewCustomer = true;
+            },
+            getClassOptions() {
+                let that = this;
+                $.ajax({
+                    type: "GET",
+                    url: `${basePath}/region_manage/queryPageRegionManageKeyList`,
+                    data: {},
+                    success: function (data) {
+                        that.classOptions = data.data;
+                    }
+                })
+            },
+            submitForm() {
+                let that = this;
+                if (this.titleName == "新增") {
+                    this.ruleForm.add_id = this.userObj.id;
+                    $.ajax({
+                        type: "GET",
+                        url: basePath + "/region_manage/addRegionManageNo",
+                        data: that.ruleForm,
+                        success: function (res) {
+                            console.log(res);
+                            if (res.status == 0) {
+                                that.addNewCustomer = false;
+                                that.handleCurrentChange(1);
+                            }
+                        }
+                    })
+                } else {
+                    $.ajax({
+                        type: "GET",
+                        url: basePath + "/region_manage/updateRegionManage",
+                        data: that.ruleForm,
+                        success: function (res) {
+                            if (res.status == 0) {
+                                that.addNewCustomer = false;
+                                that.handleCurrentChange(1);
+                            }
+                        }
+                    })
+                }
+            },
+            changeSearchFlag() {
+                this.topSearchFlag = false;
+            },
+            handleCurrentChange(val) {
+                this.loading = true;
+                this.soMoreUserIpt.currentPage = val;
+                let that = this;
+                $.ajax({
+                    type: "GET",
+                    url: `${basePath}/region_manage/queryPageRegionManageKeyList`,
+                    data: that.soMoreUserIpt,
+                    success: function (data) {
+                        that.cusTableLstInit = data.rows;
+                        that.pageInit.totalResult = data.total;
+                        that.pageInit.currentPage = val;
+                        that.loading = false;
+                    }
+                })
+            },
+            del(row) {
+                var that = this;
+                that.$confirm("确认删除该信息!", "提示", {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: "warning"
+                }).then(() => {
+                    $.ajax({
+                        type: "GET",
+                        url: `${basePath}/region_manage/deleteRegionManage`,
+                        data: {id: row.id},
+                        success: function (data) {
+                            if (data.status == 0) {
+                                that.$message({
+                                    type: "success",
+                                    message: "删除成功"
+                                });
+                                that.handleCurrentChange(1);
+                            }
+                        }
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: "info",
+                        message: "已取消删除"
+                    });
+                });
+            },
+        }
+    })
+</script>
+</html>

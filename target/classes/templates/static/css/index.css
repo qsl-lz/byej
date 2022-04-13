@@ -1,0 +1,280 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+#indexApp {
+    height: 100%;
+}
+header{
+    background-color: #ffffff;
+    border-bottom: 1px solid #ccc;
+}
+.header{
+    width: 1200px;
+    padding: 0 50px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.header img{
+    width: 50px;
+    cursor: pointer;
+}
+.header div label{
+    color: #ccc;
+    font-size: 12px;
+}
+.header div span{
+    font-size: 14px;
+    cursor: pointer;
+}
+.carouselImg{
+    width: 100%;
+    height: auto;
+}
+
+.contaiter{
+    width: 1200px;
+    margin: 50px auto;
+}
+.columnCon{
+    -moz-column-count:2;
+    /* Firefox */
+    -webkit-column-count:2;
+    /* Safari 和 Chrome */
+    column-count:2;
+    -moz-column-gap:1em;
+    -webkit-column-gap:1em;
+    column-gap:1em;
+}
+.divCon{
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #cccccc;
+}
+.divCon_img{
+    overflow: hidden;
+}
+.divCon_img img{
+    width: 100%;
+    height: auto;
+    transition: all 0.6s;
+}
+.divCon_img img:hover{
+    transform: scale(1.1);
+}
+.divCon_title{
+    font-weight: normal;
+    color: #000;
+    line-height: 22px;
+    overflow: hidden;
+    padding: 5px;
+    font-size: 14px;
+    -webkit-transition: height .2s ease-in-out .1s;
+    transition: height .2s ease-in-out .1s;
+}
+.divCon_bottom{
+    padding: 5px 10px;
+    font-size: 12px;
+    color: #e41749;
+}
+.divCon_bCon{
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    color: #ffffff;
+    width: 100%;
+    background: rgba(255,255,255,.6);
+}
+.my_img{
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+.my_img img{
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+}
+
+
+
+
+footer{
+    padding: 10px 20px;
+    background: #00a03e;
+    color: #ffffff;
+    text-align: center
+}
+footer div{
+    margin: 10px auto;
+}
+.topCpm{
+    width: 560px;
+    height: 200px;
+    background: #00a03e;
+    border-radius: 10px;
+    text-align: center;
+    line-height: 200px;
+    color: #ffffff;
+    margin: 40px 20px;
+    margin-top: 0;
+}
+
+#indexLogin{
+    width: 100vw;
+    height: 100vh;
+    background: url("../img/loginBGI2.jpg") no-repeat center center;
+    background-size:cover;
+    background-attachment:fixed;
+    background-color:#CCCCCC;
+}
+.loginCon{
+    padding: 200px 0;
+}
+.login{
+    width: 375px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgba(255,255,255,0.5);
+}
+.login_left{
+    width: 300px;
+}
+.login_left h4{
+    text-align: center;
+    padding-left: 65px;
+    color: #666666;
+}
+.login_right{
+    width: 200px;
+    height: 300px;
+    background: rgba(255,173,96,.6);
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.loginCon_bottom{
+    text-align: right;
+    padding-bottom: 10px;
+}
+.loginCon_bottom div{
+/*
+    width: 150px;
+    font-size: 12px;
+    color: #fff;
+    padding: 5px 10px;
+    background: rgba(0,0,0,.5);
+    border-radius: 10px;
+    margin: auto;
+*/
+}
+.loginCon_bottom div span{
+    font-size: 12px;
+    margin-left: 6px;
+    cursor: pointer;
+    color: #00a03e;
+}
+.loginCon_bottom div span:hover{
+    text-decoration: underline;
+}
+
+.topItemList{
+    display: flex;
+    align-items: center;
+
+}
+.topItemList span{
+    padding: 0px 20px;
+    height: 50px;
+    line-height: 50px;
+    color: #00a03e;
+}
+
+.selCur{
+    display: inline-block;
+    background-color: #00a03e;
+    color: #ffffff !important;
+}
+
+
+.time {
+    font-size: 13px;
+    color: #666666;
+    text-decoration: line-through;
+    font-size: 24px;
+}
+
+.bottom {
+    margin-top: 13px;
+    line-height: 12px;
+}
+
+.button {
+    padding: 0;
+    float: right;
+    color: #dd0a35;
+    font-size: 22px;
+}
+.button i{
+    font-size: 30px;
+}
+
+.image {
+    width: 100%;
+    display: block;
+}
+.conTopMap{
+    display: flex;
+    justify-content: space-between;
+}
+.conTopMap_left{
+    width: 400px;
+}
+.conTopMap_right{
+    width: 700px;
+}
+.gsCon{
+    font-size: 12px;
+    line-height: 20px;
+    text-indent: 2em;
+    color: #666666;
+}
+.jqConDiv{
+    font-size: 12px;
+    color: #666666;
+    margin: 10px auto;
+}
+.jqConDiv span{
+    font-size: 12px;
+    color: #333333;
+    font-weight: 600;
+    margin-right: 10px;
+}
+
+.ycUsrCon{
+}
+
+
+
+
+
+
+
+
+
+
+
+

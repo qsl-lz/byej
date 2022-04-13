@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dbsun.mapper.AppXingChengMapper">
+<sql id="Base_Column_List">
+su.id id,
+su.u_id u_id,
+su.xc_name xc_name,
+su.xing_cheng_time xing_cheng_time
+</sql>
+<!--在数据不存在的情况下进行添加-->
+<insert id="addAppXingCheng" parameterType="pd">
+insert into app_xing_cheng (
+u_id,
+xc_name,
+xing_cheng_time
+ ) values (
+#{u_id},
+#{xc_name},
+#{xing_cheng_time}
+) </insert>
+<!--根据id删除数据-->
+<delete id="deleteAppXingChengId" parameterType="pd"  >
+DELETE FROM  app_xing_cheng WHERE id = #{id};
+</delete>
+<!--根据id更新数据-->
+<update id="updateAppXingCheng" parameterType="pd"  >
+UPDATE app_xing_cheng  <set>
+
+<if test="u_id != null and u_id !=''"> u_id = #{u_id}, </if>
+<if test="xc_name != null and xc_name !=''"> xc_name = #{xc_name}, </if>
+<if test="xing_cheng_time != null and xing_cheng_time !=''"> xing_cheng_time = #{xing_cheng_time}, </if>
+</set>
+ WHERE id = #{id}; </update>
+<!--获取数据 不分页-->
+<select id="queryAppXingChengKey" parameterType="pd" resultType="pd" useCache="false">
+ SELECT <include refid="Base_Column_List"/>, au.nickname as user_name FROM app_xing_cheng su
+ left join app_user as au on su.u_id = au.id
+ where 1 = 1
+ <if test="id != null and id != '' "> and su.id = #{id}  </if>
+ <if test="u_id != null and u_id != '' "> and su.u_id = #{u_id}  </if>
+ <if test="xc_name != null and xc_name != '' "> and su.xc_name = #{xc_name}  </if>
+ <if test="xing_cheng_time != null and xing_cheng_time != '' "> and su.xing_cheng_time = #{xing_cheng_time}  </if> order by su.xing_cheng_time desc
+</select>
+<!--获取用户列表数据 分页-->
+<select id="queryPageAppXingChengKeyList" parameterType="page" resultType="pd" useCache="false">
+ SELECT <include refid="Base_Column_List"/>, au.nickname as user_name FROM app_xing_cheng su
+ left join app_user as au on su.u_id = au.id
+ where 1 = 1
+ <if test="pd.id != null and pd.id !=''"> and su.id = #{pd.id}  </if>
+ <if test="pd.u_id != null and pd.u_id !=''"> and su.u_id = #{pd.u_id}  </if>
+ <if test="pd.xc_name != null and pd.xc_name !=''"> and su.xc_name = #{pd.xc_name}  </if>
+ <if test="pd.xing_cheng_time != null and pd.xing_cheng_time !=''"> and su.xing_cheng_time = #{pd.xing_cheng_time}  </if> order by su.xing_cheng_time desc
+</select>
+</mapper>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1.0,maixmum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+    <title>紧急通知-景区数据可视化系统</title>
+    <link rel="stylesheet" href="https://unpkg.zhimg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="static/css/index.css">
+    <script src="https://unpkg.zhimg.com/vue@2.6.12/dist/vue.js"></script>
+    <script src="https://unpkg.zhimg.com/element-ui/lib/index.js"></script>
+    <script src="static/js/jquery-2.2.3.min.js"></script>
+
+</head>
+<body>
+<div id="indexApp">
+    <header>
+        <div class="header">
+            <img src="static/img/icon_logo.png" @click="toIndex"/>
+            <div class="topItemList">
+                <span @click="curSelect(1)" :class="activeIndex=='首页' ? 'selCur' : ''">首页</span>
+                <span :class="activeIndex=='紧急通知' ? 'selCur' : ''" @click="curSelect(2)">紧急通知</span>
+            </div>
+            <div v-if="userObj.id">
+                <div class="my_img">
+                    <el-dropdown>
+                  <span class="el-dropdown-link">
+
+                        <img v-if="userObj.sex==1" src="static/img/saler.png"/>
+                        <img v-else="userObj.sex==2" src="static/img/saler1.png"/><i
+                          class="el-icon-arrow-down el-icon--right"></i>
+                  </span>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item><span @click="toCenter">个人中心</span></el-dropdown-item>
+                            <el-dropdown-item><span @click="loginOut">退出登录</span></el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                </div>
+            </div>
+            <div v-else>
+                <span @click="loginOut">登录</span>
+                <label>|</label>
+                <span @click="loginOut">注册</span>
+            </div>
+        </div>
+    </header>
+    <div class="contaiter" style="min-height: 650px;">
+        <div class="divCon" v-for="item in itemList" @click="toJdDetails(item.id)">
+            <div class="divCon_title">{{item.title}}</div>
+        </div>
+
+    </div>
+    <div style="height: 50px;"></div>
+    <footer>
+        <div>景区数据可视化系统</div>
+        <div>Copyright &copy; 2022</div>
+    </footer>
+
+</div>
+</body>
+<!-- 全局js -->
+<script>
+
+    /**************************************时间格式化处理************************************/
+    function dateFtt(fmt, date) { //author: meizz
+        var o = {
+            "M+": date.getMonth() + 1,     //月份
+            "d+": date.getDate(),     //日
+            "h+": date.getHours(),     //小时
+            "m+": date.getMinutes(),     //分
+            "s+": date.getSeconds(),     //秒
+            "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+            "S": date.getMilliseconds()    //毫秒
+        };
+        if (/(y+)/.test(fmt))
+            fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt))
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+
+    var basePath = "/" + window.location.pathname.split("/")[1];
+    var indexApp = new Vue({
+        el: "#indexApp",
+        data() {
+            return {
+                activeIndex: '紧急通知',
+                itemList: [],
+                userObj: {},
+                typeList: [],
+                setName: '',
+                isImFlag: false,
+                imTextarea: '',
+                imLogList: [],
+                timer: null
+            }
+        },
+        created() {
+            this.userObj = JSON.parse(localStorage.getItem("webInfo")) || [];
+        },
+        mounted() {
+            this.getItemList('');
+        },
+        methods: {
+            toJdDetails(id) {
+                window.location.href = basePath + "/news_details?id=" + id;
+            },
+            toCenter() {
+                window.location.href = basePath + "/center";
+            },
+            toIndex() {
+                location.reload();
+            },
+            curSelect(val, name) {
+                this.activeIndex = val;
+                if (val == 1) {
+                    window.location.href = basePath + "/index";
+                } else if (val == 2) {
+                    window.location.href = basePath + "/news";
+                } else if (val == 3) {
+                    window.location.href = basePath + "/comment";
+                }
+            },
+            loginOut() {
+                window.location.href = basePath + "/login";
+                localStorage.removeItem("webInfo")
+            },
+            getItemList() {
+                let that = this;
+                $.ajax({
+                    type: "GET",
+                    url: `${basePath}/notice_manage/queryNoticeManageKey`,
+                    data: {},
+                    success: function (data) {
+                        let list = data.data;
+                        that.itemList = list;
+                    }
+                })
+            },
+
+        }
+    })
+</script>
+</html>
