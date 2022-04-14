@@ -63,12 +63,13 @@
                     <h4>我的信息</h4>
                     <div>
                         <el-form :model="ruleForm" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-                        <el-form-item label="密码">
-                        <el-input v-model="ruleForm.password" type="password"></el-input>
-                        </el-form-item>
+
                         <el-form-item label="姓名">
                         <el-input v-model="ruleForm.nickname"></el-input>
                         </el-form-item>
+                            <el-form-item label="密码">
+                                <el-input v-model="ruleForm.password" type="password"></el-input>
+                            </el-form-item>
                             <el-form-item label="手机号">
                                 <el-input v-model="ruleForm.phone"></el-input>
                             </el-form-item>
@@ -135,10 +136,24 @@
                         format="yyyy 年 MM 月 dd 日"
                         value-format="yyyy-MM-dd">
                 </el-date-picker>
-            </el-form-item>
+            </el-form-item >
             <el-form-item label="行程地点">
-                <el-input v-model="travelForm.xc_name"></el-input>
+
+                    <el-select v-model="travelForm.xc_name" placeholder="行程地点">
+                        <el-option label="龙门石窟" value="龙门石窟"></el-option>
+                        <el-option label="白马寺" value="白马寺"></el-option>
+                        <el-option label="洛阳老城" value="洛阳老城"></el-option>
+                        <el-option label="关林庙" value="关林庙"></el-option>
+                        <el-option label="洛阳博物馆" value="洛阳博物馆"></el-option>
+                        <el-option label="隋唐植物园" value="隋唐植物园"></el-option>
+                        <el-option label="国花园" value="国花园"></el-option>
+                        <el-option label="天子六驾博物馆" value="天子六驾博物馆"></el-option>
+                    </el-select>
+
             </el-form-item>
+<!--            <el-form-item label="行程地点">-->
+<!--                <el-input v-model="travelForm.xc_name"></el-input>-->
+<!--            </el-form-item>-->
             <el-form-item>
                 <el-button type="primary" style="margin-left:35%" @click="submitTravelForm">确认上报</el-button>
             </el-form-item>
@@ -164,7 +179,6 @@
 <!-- 全局js -->
 <script>
 
-    
 var basePath = "/" + window.location.pathname.split("/")[1];
 var indexApp = new Vue({
     el: "#indexApp",
@@ -186,6 +200,7 @@ var indexApp = new Vue({
             tiwenList:[],
             tiwenFlag:false,
             tiwenForm:{},
+
             
         }
     },
@@ -340,15 +355,38 @@ var indexApp = new Vue({
             this.getPay();
         },
         toSet(){
-            this.selIndex=1;  
+            this.selIndex=1;
+            let num=this.selIndex-1;
+            let x=document.getElementsByClassName("myCon_left_con");
+            x=x[0];
+            let y=x.children;
+            for(let m=0;m<y.length;m++){
+                y[m].style.backgroundColor="white";
+            }
+            y[num].style.backgroundColor="pink";
         },
         myTravel(){
             this.selIndex=2;
-
+            let num=this.selIndex-1;
+            let x=document.getElementsByClassName("myCon_left_con");
+            x=x[0];
+            let y=x.children;
+            for(let m=0;m<y.length;m++){
+                y[m].style.backgroundColor="white";
+            }
+            y[num].style.backgroundColor="pink";
             this.getClot();
         },
         myTiwen(){
             this.selIndex=4;
+            let num=this.selIndex-2;
+            let x=document.getElementsByClassName("myCon_left_con");
+            x=x[0];
+            let y=x.children;
+            for(let m=0;m<y.length;m++){
+                y[m].style.backgroundColor="white";
+            }
+            y[num].style.backgroundColor="pink";
             this.getTiwen();
         },
         myPay(){
